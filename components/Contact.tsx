@@ -18,8 +18,8 @@ const schema = z.object({
   email: z.string().email("Invalid email address"),
   subject: z.string().min(5, "Minimum 5 characters"),
   message: z.string().min(10, "Minimum 10 characters"),
-  consent: z.literal(true, {
-    errorMap: () => ({ message: "Consent is required" }),
+  consent: z.boolean().refine((val) => val === true, {
+    message: "Consent is required",
   }),
 });
 

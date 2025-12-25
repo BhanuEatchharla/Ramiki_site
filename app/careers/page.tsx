@@ -145,7 +145,7 @@ export default function CareersPage() {
             most content career growths. If you are a right candidate with the
             interest and/or experience in working with Microsoft, Mobile and
             Product Application development, kindly do not hesitate to forward
-            your CV with the relevant JD Number's to{" "}
+            your CV with the relevant JD Number&apos;s to{" "}
             <a
               href="mailto:info@ramkigroup.com"
               className="font-semibold text-primary hover:underline"
