@@ -12,7 +12,7 @@ export const Hero = () => {
         relative w-full min-h-screen flex items-center justify-center overflow-hidden
         bg-gradient-to-br
         from-blue-500 via-white to-teal-500
-        dark:from-[#7ea1e2] dark:via-[#4a5671] dark:to-[#132a24]
+        dark:from-[#4a679e] dark:via-[#222b3f] dark:to-[#23332f]
       "
     >
       {/* subtle overlay */}

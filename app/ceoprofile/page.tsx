@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState } from "react";
+import {  useState } from "react";
 import {
   Mail,
   Award,
@@ -14,11 +14,12 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import ramkisir from "@/public/ramkisir.jpg";
-import careershero from "@/public/careershero.jpg";
+import ceo from "@/public/ceo2.jpg";
 
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ScrollToTop } from "@/components/ScrollToTop";
+// import { useRouter } from "next/navigation";
 
 /* ---------------- ACHIEVEMENTS ---------------- */
 const achievements = [
@@ -66,67 +67,75 @@ beyond monetary value and contribute positively to humanity as a whole.
 
 export default function CEOProfile() {
   const [expanded, setExpanded] = useState(false);
+  // const router = useRouter();
 
+//  useEffect(() => {
+//   // Check if CEO page was already visited in this session
+//   const hasVisited = sessionStorage.getItem("ceo-visited");
+
+//   if (hasVisited) {
+//     // This means user refreshed the page
+//     router.replace("/");
+//   } else {
+//     // First time landing via navigation → allow page
+//     sessionStorage.setItem("ceo-visited", "true");
+//   }
+// }, [router]);
   return (
     <div className="min-h-screen py-18 bg-background">
       <Header />
 
       {/* ================= HERO ================= */}
- 
 
-<section className="relative py-20 bg-background">
-  <div className="container mx-auto px-4">
-    {/* Hero Wrapper */}
-    <div className="relative h-[70vh] min-h-[520px] overflow-hidden rounded-3xl">
-      
-      {/* Background Image */}
-      <Image
-        src={careershero}
-        alt="CEO Leadership"
-        fill
-        priority
-        className="object-cover object-center"
-      />
+      <section className="relative py-20 bg-background">
+        <div className="container mx-auto px-4">
+          {/* Hero Wrapper */}
+          <div className="relative h-[70vh] min-h-[520px] overflow-hidden rounded-3xl">
+            {/* Background Image */}
+            <Image
+              src={ceo}
+              alt="CEO Leadership"
+              fill
+              priority
+              className="object-cover object-center"
+            />
 
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px]" />
+            {/* Overlay */}
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px]" />
 
-      {/* Content */}
-      <div className="relative z-10 flex h-full items-center">
-        <div className="mx-auto text-center max-w-4xl px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <span className="text-sm uppercase tracking-wider text-slate-300">
-              Leadership
-            </span>
+            {/* Content */}
+            <div className="relative z-10 flex h-full items-center">
+              <div className="mx-auto text-center max-w-4xl px-4">
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6 }}
+                >
+                  <span className="text-sm uppercase tracking-wider text-slate-300">
+                    Leadership
+                  </span>
 
-            <h1 className="mt-4 text-4xl sm:text-5xl md:text-6xl font-bold text-white">
-              Sriramakrishna Dendukuri
-            </h1>
+                  <h1 className="mt-4 text-4xl sm:text-5xl md:text-6xl font-bold text-white">
+                    Sriramakrishna Dendukuri
+                  </h1>
 
-            <p className="mt-4 text-lg text-slate-200">
-              Chairman & Managing Director, Ramki Group
-            </p>
+                  <p className="mt-4 text-lg text-slate-200">
+                    Chairman & Managing Director, Ramki Group
+                  </p>
 
-            <a
-              href="mailto:ramki@ramkigroup.com"
-              className="mt-6 inline-flex items-center gap-2 text-blue-400 hover:text-blue-300"
-            >
-              <Mail className="w-5 h-5" />
-              ramki@ramkigroup.com
-            </a>
-          </motion.div>
+                  <a
+                    href="mailto:ramki@ramkigroup.com"
+                    className="mt-6 inline-flex items-center gap-2 text-blue-400 hover:text-blue-300"
+                  >
+                    <Mail className="w-5 h-5" />
+                    ramki@ramkigroup.com
+                  </a>
+                </motion.div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
-</section> 
-
-
-
+      </section>
 
       {/* ================= PROFILE CONTENT ================= */}
       <section className="py-20 bg-slate-50 dark:bg-slate-950">
@@ -168,7 +177,7 @@ export default function CEOProfile() {
 
               <button
                 onClick={() => setExpanded(!expanded)}
-                className="mt-4 inline-flex items-center gap-2 text-primary font-medium hover:bg-rose-500 bg-blue-600 rounded-md text-white"
+                className="mt-4 inline-flex items-center gap-2 text-primary font-medium hover:bg-red-700 bg-blue-600 rounded-md text-white"
               >
                 {expanded ? (
                   <>
@@ -186,50 +195,37 @@ export default function CEOProfile() {
       </section>
 
       {/* ================= ACHIEVEMENTS ================= */}
-     <section className="py-16 bg-slate-100 dark:bg-slate-900">
-  <div className="container mx-auto px-4">
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
-      {achievements.map((item, index) => (
-        <motion.div
-          key={item.title}
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: index * 0.1 }}
-          className={`
+      <section className="py-16 bg-slate-100 dark:bg-slate-900">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
+            {achievements.map((item, index) => (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
+                className={`
             rounded-2xl p-6 text-center shadow-sm
-            ${
-              index === 0 &&
-              "bg-blue-200 dark:bg-blue-950/40"
-            }
-            ${
-              index === 1 &&
-              "bg-emerald-200 dark:bg-emerald-950/40"
-            }
-            ${
-              index === 2 &&
-              "bg-amber-200 dark:bg-amber-950/40"
-            }
-            ${
-              index === 3 &&
-              "bg-violet-200 dark:bg-violet-950/40"
-            }
+            ${index === 0 && "bg-blue-200 dark:bg-blue-950/40"}
+            ${index === 1 && "bg-emerald-200 dark:bg-emerald-950/40"}
+            ${index === 2 && "bg-amber-200 dark:bg-amber-950/40"}
+            ${index === 3 && "bg-violet-200 dark:bg-violet-950/40"}
           `}
-        >
-          <div className="w-12 h-12 mx-auto rounded-xl bg-primary/10 flex items-center justify-center mb-4">
-            <item.icon className="w-6 h-6 text-primary" />
+              >
+                <div className="w-12 h-12 mx-auto rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                  <item.icon className="w-6 h-6 text-primary" />
+                </div>
+
+                <h3 className="text-xl font-bold">{item.title}</h3>
+
+                <p className="text-sm text-muted-foreground mt-1">
+                  {item.description}
+                </p>
+              </motion.div>
+            ))}
           </div>
-
-          <h3 className="text-xl font-bold">{item.title}</h3>
-
-          <p className="text-sm text-muted-foreground mt-1">
-            {item.description}
-          </p>
-        </motion.div>
-      ))}
-    </div>
-  </div>
-</section>
-
+        </div>
+      </section>
 
       <Footer />
       <ScrollToTop />

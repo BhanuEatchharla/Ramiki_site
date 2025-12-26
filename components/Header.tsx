@@ -5,6 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { ThemeToggle } from "./ThemeToggle";
+import Image from "next/image";
+import Logo from "../public/logo.png";
+
 
 const products = [
   { name: "Tofa", href: "/#products" },
@@ -86,14 +89,19 @@ export const Header = () => {
             className="flex items-center gap-3 focus:outline-none"
             aria-label="Go to home"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-teal-500">
-              <span className="text-lg font-bold text-white">R</span>
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-200 ">
+              <Image
+                src={Logo}
+                alt="Logo"
+                width={24}
+                height={24}
+              />
             </div>
             <div className="leading-tight text-left">
-              <span className="block text-base font-bold text-slate-900 dark:text-white">
+              <span className="block text-3xl font-bold text-blue-900 dark:text-white">
                 Ramki
               </span>
-              <span className="block text-xs text-slate-500 dark:text-slate-400">
+              <span className="block text-base text-red-600 dark:text-slate-400">
                 Technologies
               </span>
             </div>

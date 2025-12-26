@@ -1,5 +1,6 @@
 import "./globals.css";
 import Providers from "./providers";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
 
 export const metadata = {
   title: "Ramki Technologies",
@@ -14,7 +15,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <MobileBottomNav />
+        </Providers>
       </body>
     </html>
   );

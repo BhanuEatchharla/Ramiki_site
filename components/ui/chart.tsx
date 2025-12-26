@@ -19,7 +19,7 @@ const THEMES = {
 ---------------------------------------- */
 
 export type ChartConfig = {
-  [k in string]: {
+  [key: string]: {
     label?: React.ReactNode;
     icon?: React.ComponentType;
   } & (
@@ -34,7 +34,7 @@ type ChartContextProps = {
 
 const ChartContext = React.createContext<ChartContextProps | null>(null);
 
-function useChart() {
+function useChart(): ChartContextProps {
   const context = React.useContext(ChartContext);
   if (!context) {
     throw new Error("useChart must be used within a <ChartContainer />");
@@ -48,23 +48,20 @@ function useChart() {
 
 const ChartContainer = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"div"> & {
+  React.ComponentPropsWithoutRef<"div"> & {
     config: ChartConfig;
     children: React.ReactNode;
   }
 >(({ id, className, children, config, ...props }, ref) => {
-  const uniqueId = React.useId();
-  const chartId = `chart-${id || uniqueId.replace(/:/g, "")}`;
+  const reactId = React.useId();
+  const chartId = `chart-${id ?? reactId.replace(/:/g, "")}`;
 
   return (
     <ChartContext.Provider value={{ config }}>
       <div
         ref={ref}
         data-chart={chartId}
-        className={cn(
-          "flex aspect-video justify-center text-xs",
-          className
-        )}
+        className={cn("flex aspect-video justify-center text-xs", className)}
         {...props}
       >
         <ChartStyle id={chartId} config={config} />
@@ -81,37 +78,38 @@ ChartContainer.displayName = "ChartContainer";
    CHART STYLE
 ---------------------------------------- */
 
-const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
+type ChartStyleProps = {
+  id: string;
+  config: ChartConfig;
+};
+
+const ChartStyle = ({ id, config }: ChartStyleProps) => {
   const colorConfig = Object.entries(config).filter(
-    ([_, c]) => c.theme || c.color
+    ([_, c]) => Boolean(c.color || c.theme)
   );
 
-  if (!colorConfig.length) {
-    return null;
-  }
+  if (!colorConfig.length) return null;
 
-  return (
-    <style
-      dangerouslySetInnerHTML={{
-        __html: Object.entries(THEMES)
-          .map(
-            ([theme, prefix]) => `
+  const css = Object.entries(THEMES)
+    .map(([theme, prefix]) => {
+      const vars = colorConfig
+        .map(([key, item]) => {
+          const color =
+            item.theme?.[theme as keyof typeof item.theme] ?? item.color;
+          return color ? `  --color-${key}: ${color};` : null;
+        })
+        .filter(Boolean)
+        .join("\n");
+
+      return `
 ${prefix} [data-chart="${id}"] {
-${colorConfig
-  .map(([key, item]) => {
-    const color =
-      item.theme?.[theme as keyof typeof item.theme] || item.color;
-    return color ? `  --color-${key}: ${color};` : null;
-  })
-  .filter(Boolean)
-  .join("\n")}
+${vars}
 }
-`
-          )
-          .join("\n"),
-      }}
-    />
-  );
+`;
+    })
+    .join("\n");
+
+  return <style dangerouslySetInnerHTML={{ __html: css }} />;
 };
 
 /* ----------------------------------------
@@ -120,9 +118,30 @@ ${colorConfig
 
 const ChartTooltip = RechartsPrimitive.Tooltip;
 
+type TooltipPayloadItem = {
+  name?: string;
+  value?: number | string;
+  color?: string;
+  dataKey?: string;
+};
+
+type ChartTooltipContentProps = {
+  active?: boolean;
+  payload?: TooltipPayloadItem[];
+  label?: string;
+  labelFormatter?: (label: string, payload: TooltipPayloadItem[]) => React.ReactNode;
+  formatter?: (
+    value: number | string | undefined,
+    name?: string,
+    item?: TooltipPayloadItem,
+    index?: number
+  ) => React.ReactNode;
+  className?: string;
+};
+
 const ChartTooltipContent = React.forwardRef<
   HTMLDivElement,
-  any
+  ChartTooltipContentProps
 >(
   (
     {
@@ -137,7 +156,7 @@ const ChartTooltipContent = React.forwardRef<
   ) => {
     const { config } = useChart();
 
-    if (!active || !payload?.length) return null;
+    if (!active || !payload || payload.length === 0) return null;
 
     return (
       <div
@@ -152,9 +171,10 @@ const ChartTooltipContent = React.forwardRef<
             {labelFormatter ? labelFormatter(label, payload) : label}
           </div>
         )}
+
         <div className="grid gap-1.5">
-          {payload.map((item: any, index: number) => {
-            const key = item.dataKey || item.name;
+          {payload.map((item, index) => {
+            const key = item.dataKey ?? item.name ?? String(index);
             const itemConfig = config[key];
 
             return (
@@ -174,7 +194,7 @@ const ChartTooltipContent = React.forwardRef<
                 <span className="font-mono font-medium tabular-nums">
                   {formatter
                     ? formatter(item.value, item.name, item, index)
-                    : item.value?.toLocaleString()}
+                    : item.value?.toLocaleString?.()}
                 </span>
               </div>
             );
@@ -192,21 +212,33 @@ ChartTooltipContent.displayName = "ChartTooltipContent";
 
 const ChartLegend = RechartsPrimitive.Legend;
 
+type LegendPayloadItem = {
+  dataKey?: string;
+  value?: string;
+  color?: string;
+};
+
+type ChartLegendContentProps = {
+  payload?: LegendPayloadItem[];
+  className?: string;
+};
+
 const ChartLegendContent = React.forwardRef<
   HTMLDivElement,
-  any
+  ChartLegendContentProps
 >(({ payload, className }, ref) => {
   const { config } = useChart();
 
-  if (!payload?.length) return null;
+  if (!payload || payload.length === 0) return null;
 
   return (
     <div
       ref={ref}
       className={cn("flex flex-wrap justify-center gap-4", className)}
     >
-      {payload.map((item: any, index: number) => {
-        const itemConfig = config[item.dataKey];
+      {payload.map((item, index) => {
+        const itemConfig = item.dataKey ? config[item.dataKey] : undefined;
+
         return (
           <div key={index} className="flex items-center gap-2">
             <span
