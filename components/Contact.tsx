@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { useRef, useState } from "react";
 import { z } from "zod";
-import { useForm } from "react-hook-form";
+import { useForm, UseFormRegisterReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MapPin, Phone, Mail, Globe, Send, CheckCircle } from "lucide-react";
 import { Button } from "./ui/button";
@@ -322,7 +322,7 @@ const Field = ({
   error,
 }: {
   placeholder: string;
-  register: any;
+  register: UseFormRegisterReturn;
   error?: string;
 }) => (
   <div>
