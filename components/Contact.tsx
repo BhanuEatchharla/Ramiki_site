@@ -11,6 +11,7 @@ import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Checkbox } from "./ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabaseClient";
 
 /* ================= SCHEMA ================= */
 const schema = z.object({
@@ -23,6 +24,13 @@ const schema = z.object({
   }),
 });
 
+export type ContactFormData = {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  consent: boolean;
+};
 type FormData = z.infer<typeof schema>;
 
 /* ================= INFO ================= */
@@ -74,13 +82,44 @@ export const Contact = () => {
     defaultValues: { consent: false },
   });
 
-  const onSubmit = async () => {
-    await new Promise((r) => setTimeout(r, 1200));
-    setSent(true);
-    toast({ title: "Message Sent", description: "We’ll contact you shortly." });
+ const onSubmit = async (data: {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}) => {
+  try {
+    // 1️⃣ Store in Supabase
+    const { error } = await supabase
+      .from("contact_messages")
+      .insert([data]);
+
+    if (error) throw error;
+
+    // 2️⃣ Send email
+    await fetch("/api/send-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    toast({
+      title: "Message sent",
+      description: "We’ll get back to you shortly.",
+    });
+
     reset();
-    setTimeout(() => setSent(false), 2500);
-  };
+  } catch (err) {
+    console.error(err);
+    toast({
+      title: "Failed",
+      description: "Please try again later.",
+      variant: "destructive",
+    });
+  }
+};
+
+
 
   return (
     <section
@@ -135,111 +174,117 @@ export const Contact = () => {
           </div>
 
           {/* FORM */}
-         <motion.form
-  onSubmit={handleSubmit(onSubmit)}
-  initial={{ opacity: 0, y: 30 }}
-  animate={{ opacity: 1, y: 0 }}
-  className="
+          <motion.form
+            onSubmit={handleSubmit(onSubmit)}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="
     rounded-3xl p-10
     bg-[#f2f6ff]
     border border-slate-200
     shadow-[0_20px_60px_rgba(0,0,0,0.12)]
   "
->
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-    {/* NAME */}
-    <div>
-      <Input
-        placeholder="Full Name"
-        {...register("name")}
-        className="
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* NAME */}
+              <div>
+                <Input
+                  placeholder="Full Name"
+                  {...register("name")}
+                  className="
           h-12 rounded-lg
           bg-white
           border border-slate-800
           focus:ring-2 focus:ring-blue-500
         "
-      />
-      {errors.name && (
-        <p className="mt-1 text-sm text-red-500">{errors.name.message}</p>
-      )}
-    </div>
+                />
+                {errors.name && (
+                  <p className="mt-1 text-sm text-red-500">
+                    {errors.name.message}
+                  </p>
+                )}
+              </div>
 
-    {/* EMAIL */}
-    <div>
-      <Input
-        placeholder="Email Address"
-        {...register("email")}
-        className="
+              {/* EMAIL */}
+              <div>
+                <Input
+                  placeholder="Email Address"
+                  {...register("email")}
+                  className="
           h-12 rounded-lg
           bg-white
           border border-slate-800
           focus:ring-2 focus:ring-blue-500
         "
-      />
-      {errors.email && (
-        <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
-      )}
-    </div>
+                />
+                {errors.email && (
+                  <p className="mt-1 text-sm text-red-500">
+                    {errors.email.message}
+                  </p>
+                )}
+              </div>
 
-    {/* SUBJECT */}
-    <div className="md:col-span-2">
-      <Input
-        placeholder="Subject"
-        {...register("subject")}
-        className="
+              {/* SUBJECT */}
+              <div className="md:col-span-2">
+                <Input
+                  placeholder="Subject"
+                  {...register("subject")}
+                  className="
           h-12 rounded-lg
           bg-white
           border border-slate-800
           focus:ring-2 focus:ring-blue-500
         "
-      />
-      {errors.subject && (
-        <p className="mt-1 text-sm text-red-500">
-          {errors.subject.message}
-        </p>
-      )}
-    </div>
+                />
+                {errors.subject && (
+                  <p className="mt-1 text-sm text-red-500">
+                    {errors.subject.message}
+                  </p>
+                )}
+              </div>
 
-    {/* MESSAGE */}
-    <div className="md:col-span-2">
-      <Textarea
-        rows={4}
-        placeholder="Tell us about yourself"
-        {...register("message")}
-        className="
+              {/* MESSAGE */}
+              <div className="md:col-span-2">
+                <Textarea
+                  rows={4}
+                  placeholder="Tell us about yourself"
+                  {...register("message")}
+                  className="
           bg-white
           rounded-lg
           border border-slate-800
           focus:ring-2 focus:ring-blue-500
         "
-      />
-      {errors.message && (
-        <p className="mt-1 text-sm text-red-500">
-          {errors.message.message}
-        </p>
-      )}
-    </div>
-  </div>
+                />
+                {errors.message && (
+                  <p className="mt-1 text-sm text-red-500">
+                    {errors.message.message}
+                  </p>
+                )}
+              </div>
+            </div>
 
-  {/* CONSENT */}
-  <div className="mt-6 flex items-start gap-3">
-    <Checkbox
-      checked={watch("consent")}
-      onCheckedChange={(v) => setValue("consent", Boolean(v))}
-    />
-    <span className="text-sm text-slate-600">
-      I agree to receive communication as per Privacy Policy.
-    </span>
-  </div>
+            {/* CONSENT */}
+            <div className="mt-6 flex items-start gap-3">
+              <Checkbox
+                checked={watch("consent")}
+                onCheckedChange={(v) => setValue("consent", Boolean(v))}
+              />
+              <span className="text-sm text-slate-600">
+                I agree to receive communication as per Privacy Policy.
+              </span>
+            </div>
 
-  {errors.consent && (
-    <p className="mt-1 text-sm text-red-500">{errors.consent.message}</p>
-  )}
+            {errors.consent && (
+              <p className="mt-1 text-sm text-red-500">
+                {errors.consent.message}
+              </p>
+            )}
 
-  {/* BUTTON */}
-  <Button
-    disabled={isSubmitting || sent}
-    className="
+            {/* BUTTON */}
+            <Button
+              disabled={isSubmitting || sent}
+              className="
       mt-8 h-12 w-full
       rounded-lg
       text-lg font-semibold
@@ -248,23 +293,22 @@ export const Contact = () => {
       shadow-lg
       hover:opacity-90
     "
-  >
-    {isSubmitting ? (
-      "Sending..."
-    ) : sent ? (
-      <>
-        <CheckCircle className="w-5 h-5 mr-2" />
-        Message Sent
-      </>
-    ) : (
-      <>
-        <Send className="w-5 h-5 mr-2" />
-        Send Message
-      </>
-    )}
-  </Button>
-</motion.form>
-
+            >
+              {isSubmitting ? (
+                "Sending..."
+              ) : sent ? (
+                <>
+                  <CheckCircle className="w-5 h-5 mr-2" />
+                  Message Sent
+                </>
+              ) : (
+                <>
+                  <Send className="w-5 h-5 mr-2" />
+                  Send Message
+                </>
+              )}
+            </Button>
+          </motion.form>
         </div>
       </div>
     </section>

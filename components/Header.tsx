@@ -4,10 +4,9 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { ThemeToggle } from "./ThemeToggle";
+// import { ThemeToggle } from "./ThemeToggle";
 import Image from "next/image";
 import Logo from "../public/logo.png";
-
 
 const products = [
   { name: "Tofa", href: "/#products" },
@@ -32,10 +31,6 @@ export const Header = () => {
   const pathname = usePathname();
   const router = useRouter();
 
-
-
-
-
   /* ===== Scroll background ===== */
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 20);
@@ -45,7 +40,6 @@ export const Header = () => {
 
   /* ===== Unified navigation handler ===== */
   const handleNavClick = (href: string, isRoute: boolean) => {
-    
     // ROUTE NAVIGATION
     if (isRoute) {
       if (href === "/" && pathname === "/") {
@@ -74,15 +68,14 @@ export const Header = () => {
       initial={{ y: -80 }}
       animate={{ y: 0 }}
       className={`
-        fixed inset-x-0 top-0 z-50 transition-all duration-300
-        ${isScrolled
-          ? "bg-white/90 dark:bg-slate-900/90 backdrop-blur shadow-lg"
-          : "bg-transparent"}
-      `}
+    sticky top-0 z-[100]
+    transition-all duration-300
+    bg-white 
+  `}
     >
-      <div className="max-w-7xl mx-auto px-6 py-4">
+      <div className="max-w-7xl mx-auto px-6 ">
         <div className="flex items-center justify-between">
-
+          
           {/* ===== LOGO (SMOOTH HOME SCROLL) ===== */}
           <button
             onClick={() => handleNavClick("/", true)}
@@ -90,12 +83,7 @@ export const Header = () => {
             aria-label="Go to home"
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-200 ">
-              <Image
-                src={Logo}
-                alt="Logo"
-                width={24}
-                height={24}
-              />
+              <Image src={Logo} alt="Logo" width={24} height={24} />
             </div>
             <div className="leading-tight text-left">
               <span className="block text-3xl font-bold text-blue-900 dark:text-white">
@@ -114,7 +102,9 @@ export const Header = () => {
                 key={item.name}
                 className="relative"
                 onMouseEnter={() => item.hasDropdown && setIsProductsOpen(true)}
-                onMouseLeave={() => item.hasDropdown && setIsProductsOpen(false)}
+                onMouseLeave={() =>
+                  item.hasDropdown && setIsProductsOpen(false)
+                }
               >
                 <button
                   onClick={() => handleNavClick(item.href, item.isRoute)}
@@ -174,7 +164,7 @@ export const Header = () => {
 
           {/* ===== RIGHT ACTIONS ===== */}
           <div className="flex items-center gap-3">
-            <ThemeToggle />
+            {/* <ThemeToggle /> */}
             <button
               className="lg:hidden p-2"
               onClick={() => setIsMobileMenuOpen((v) => !v)}

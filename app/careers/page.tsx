@@ -7,6 +7,8 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Briefcase, Send, CheckCircle, Upload } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
+import { uploadResume } from "@/lib/uploadResume";
 
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -59,25 +61,71 @@ export default function CareersPage() {
     resolver: zodResolver(careerSchema),
   });
 
-  const onSubmit = async (data: CareerFormData) => {
-    await new Promise((r) => setTimeout(r, 1200));
+const onSubmit = async (data: CareerFormData) => {
+  try {
+    let resumeUrl: string | null = null;
 
-    console.log("Career form:", data);
-    console.log("Resume:", selectedFile);
+    // 1️⃣ Upload resume (if exists)
+    if (selectedFile) {
+      resumeUrl = await uploadResume(selectedFile);
+    }
 
+    // 2️⃣ Save to Supabase table
+    const { error } = await supabase
+      .from("career_applications")
+      .insert([
+        {
+          name: data.name,
+          email: data.email,
+          contact: data.contact,
+          city: data.city,
+          position: data.position,
+          message: data.message,
+          resume_url: resumeUrl,
+        },
+      ]);
+
+    if (error) throw error;
+
+    // 3️⃣ Send email notification (HR + user)
+    const emailRes = await fetch("/api/send-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: data.name,
+        email: data.email,
+        contact: data.contact,
+        city: data.city,
+        position: data.position,
+        message: data.message,
+        resumeUrl,
+      }),
+    });
+
+    if (!emailRes.ok) {
+      throw new Error("Email notification failed");
+    }
+
+    // 4️⃣ Success UI
     toast({
       title: "Application submitted",
       description: "Our HR team will contact you soon.",
     });
 
-    setSubmitted(true);
     reset();
     setSelectedFile(null);
+  } catch (err) {
+    console.error("Submission error:", err);
 
-    setTimeout(() => setSubmitted(false), 2500);
-  };
+    toast({
+      title: "Submission failed",
+      description: "Please try again later.",
+      variant: "destructive",
+    });
+  }
+};
 
-  return (
+ return (
     <div className="min-h-screen bg-background">
       <Header />
 
@@ -124,40 +172,40 @@ export default function CareersPage() {
       </section>
 
       <section className="pb-24 bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
-  <div className="container mx-auto px-4">
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="mx-auto max-w-6xl"
-    >
-      {/* MAIN GRID */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-        
-        {/* ---------- LEFT : INFO ---------- */}
-        <div className="space-y-6">
-          <h2 className="text-3xl font-bold text-foreground">
-            Career Opportunities
-          </h2>
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mx-auto max-w-6xl"
+          >
+            {/* MAIN GRID */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+              {/* ---------- LEFT : INFO ---------- */}
+              <div className="space-y-6">
+                <h2 className="text-3xl font-bold text-foreground">
+                  Career Opportunities
+                </h2>
 
-          <p className="text-muted-foreground leading-relaxed">
-            Professionals who are part of the Ramki Technologies have one of the
-            most content career growths. If you are a right candidate with the
-            interest and/or experience in working with Microsoft, Mobile and
-            Product Application development, kindly do not hesitate to forward
-            your CV with the relevant JD Number&apos;s to{" "}
-            <a
-              href="mailto:info@ramkigroup.com"
-              className="font-semibold text-primary hover:underline"
-            >
-              info@ramkigroup.com
-            </a>
-          </p>
+                <p className="text-muted-foreground leading-relaxed">
+                  Professionals who are part of the Ramki Technologies have one
+                  of the most content career growths. If you are a right
+                  candidate with the interest and/or experience in working with
+                  Microsoft, Mobile and Product Application development, kindly
+                  do not hesitate to forward your CV with the relevant JD
+                  Number&apos;s to{" "}
+                  <a
+                    href="mailto:info@ramkigroup.com"
+                    className="font-semibold text-primary hover:underline"
+                  >
+                    info@ramkigroup.com
+                  </a>
+                </p>
 
-          {/* CTA */}
-          <a
-            href="/careers/openings"
-            className="
+                {/* CTA */}
+                <a
+                  href="/careers/openings"
+                  className="
               inline-flex items-center justify-center
               h-12 px-8
               rounded-lg
@@ -167,15 +215,15 @@ export default function CareersPage() {
               hover:bg-green-700
               transition
             "
-          >
-            CURRENT OPENINGS
-          </a>
-        </div>
+                >
+                  CURRENT OPENINGS
+                </a>
+              </div>
 
-        {/* ---------- RIGHT : FORM ---------- */}
-        <form
-  onSubmit={handleSubmit(onSubmit)}
-  className="
+              {/* ---------- RIGHT : FORM ---------- */}
+              <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="
     rounded-2xl
     bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50
     dark:from-slate-900 dark:via-slate-950 dark:to-slate-900
@@ -183,145 +231,154 @@ export default function CareersPage() {
     shadow-[0_25px_60px_rgba(0,0,0,0.12)]
     p-8 sm:p-10
   "
->
-  {/* FORM GRID */}
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              >
+                {/* FORM GRID */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {/* Name */}
+                  <div>
+                    <Input
+                      className={`h-11 bg-white ${
+                        errors.name ? "border-red-500 focus:ring-red-500" : ""
+                      }`}
+                      placeholder="Full Name"
+                      {...register("name")}
+                    />
+                    {errors.name && (
+                      <p className="mt-1 text-sm text-red-500">
+                        {errors.name.message}
+                      </p>
+                    )}
+                  </div>
 
-    {/* Name */}
-    <div>
-      <Input
-        className={`h-11 bg-white ${
-          errors.name ? "border-red-500 focus:ring-red-500" : ""
-        }`}
-        placeholder="Full Name"
-        {...register("name")}
-      />
-      {errors.name && (
-        <p className="mt-1 text-sm text-red-500">
-          {errors.name.message}
-        </p>
-      )}
-    </div>
+                  {/* Email */}
+                  <div>
+                    <Input
+                      type="email"
+                      className={`h-11 bg-white ${
+                        errors.email ? "border-red-500 focus:ring-red-500" : ""
+                      }`}
+                      placeholder="Email Address"
+                      {...register("email")}
+                    />
+                    {errors.email && (
+                      <p className="mt-1 text-sm text-red-500">
+                        {errors.email.message}
+                      </p>
+                    )}
+                  </div>
 
-    {/* Email */}
-    <div>
-      <Input
-        type="email"
-        className={`h-11 bg-white ${
-          errors.email ? "border-red-500 focus:ring-red-500" : ""
-        }`}
-        placeholder="Email Address"
-        {...register("email")}
-      />
-      {errors.email && (
-        <p className="mt-1 text-sm text-red-500">
-          {errors.email.message}
-        </p>
-      )}
-    </div>
+                  {/* Contact */}
+                  <div>
+                    <Input
+                      className={`h-11 bg-white ${
+                        errors.contact
+                          ? "border-red-500 focus:ring-red-500"
+                          : ""
+                      }`}
+                      placeholder="Contact Number"
+                      {...register("contact")}
+                    />
+                    {errors.contact && (
+                      <p className="mt-1 text-sm text-red-500">
+                        {errors.contact.message}
+                      </p>
+                    )}
+                  </div>
 
-    {/* Contact */}
-    <div>
-      <Input
-        className={`h-11 bg-white ${
-          errors.contact ? "border-red-500 focus:ring-red-500" : ""
-        }`}
-        placeholder="Contact Number"
-        {...register("contact")}
-      />
-      {errors.contact && (
-        <p className="mt-1 text-sm text-red-500">
-          {errors.contact.message}
-        </p>
-      )}
-    </div>
+                  {/* City */}
+                  <div>
+                    <Input
+                      className={`h-11 bg-white ${
+                        errors.city ? "border-red-500 focus:ring-red-500" : ""
+                      }`}
+                      placeholder="City / Town"
+                      {...register("city")}
+                    />
+                    {errors.city && (
+                      <p className="mt-1 text-sm text-red-500">
+                        {errors.city.message}
+                      </p>
+                    )}
+                  </div>
 
-    {/* City */}
-    <div>
-      <Input
-        className={`h-11 bg-white ${
-          errors.city ? "border-red-500 focus:ring-red-500" : ""
-        }`}
-        placeholder="City / Town"
-        {...register("city")}
-      />
-      {errors.city && (
-        <p className="mt-1 text-sm text-red-500">
-          {errors.city.message}
-        </p>
-      )}
-    </div>
+                  {/* Upload */}
+                  <div className="md:col-span-2">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      hidden
+                      accept=".pdf,.doc,.docx"
+                      onChange={(e) =>
+                        setSelectedFile(e.target.files?.[0] ?? null)
+                      }
+                    />
 
-    {/* Upload */}
-    <div className="md:col-span-2">
-      <input
-        ref={fileInputRef}
-        type="file"
-        hidden
-        accept=".pdf,.doc,.docx"
-        onChange={(e) => setSelectedFile(e.target.files?.[0] ?? null)}
-      />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="h-11 w-full justify-start gap-2 bg-white border-dashed"
+                    >
+                      <Upload className="h-4 w-4" />
+                      {selectedFile ? selectedFile.name : "Upload Resume"}
+                    </Button>
+                  </div>
 
-      <Button
-        type="button"
-        variant="outline"
-        onClick={() => fileInputRef.current?.click()}
-        className="h-11 w-full justify-start gap-2 bg-white border-dashed"
-      >
-        <Upload className="h-4 w-4" />
-        {selectedFile ? selectedFile.name : "Upload Resume"}
-      </Button>
-    </div>
-
-    {/* Position */}
-    <div className="md:col-span-2">
-      <select
-        {...register("position")}
-        className={`
+                  {/* Position */}
+                  <div className="md:col-span-2">
+                    <select
+                      {...register("position")}
+                      className={`
           h-11 w-full rounded-lg
           bg-white px-4 text-sm
           border
-          ${errors.position ? "border-red-500 focus:ring-red-500" : "border-input"}
+          ${
+            errors.position
+              ? "border-red-500 focus:ring-red-500"
+              : "border-input"
+          }
           focus:outline-none focus:ring-2
         `}
-      >
-        <option value="">Select Position</option>
-        {positions.map((p) => (
-          <option key={p} value={p}>
-            {p}
-          </option>
-        ))}
-      </select>
-      {errors.position && (
-        <p className="mt-1 text-sm text-red-500">
-          {errors.position.message}
-        </p>
-      )}
-    </div>
+                    >
+                      <option value="">Select Position</option>
+                      {positions.map((p) => (
+                        <option key={p} value={p}>
+                          {p}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.position && (
+                      <p className="mt-1 text-sm text-red-500">
+                        {errors.position.message}
+                      </p>
+                    )}
+                  </div>
 
-    {/* Message */}
-    <div className="md:col-span-2">
-      <Textarea
-        rows={4}
-        className={`bg-white ${
-          errors.message ? "border-red-500 focus:ring-red-500" : ""
-        }`}
-        placeholder="Tell us about yourself"
-        {...register("message")}
-      />
-      {errors.message && (
-        <p className="mt-1 text-sm text-red-500">
-          {errors.message.message}
-        </p>
-      )}
-    </div>
-  </div>
+                  {/* Message */}
+                  <div className="md:col-span-2">
+                    <Textarea
+                      rows={4}
+                      className={`bg-white ${
+                        errors.message
+                          ? "border-red-500 focus:ring-red-500"
+                          : ""
+                      }`}
+                      placeholder="Tell us about yourself"
+                      {...register("message")}
+                    />
+                    {errors.message && (
+                      <p className="mt-1 text-sm text-red-500">
+                        {errors.message.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
 
-  {/* SUBMIT */}
-  <Button
-    type="submit"
-    disabled={isSubmitting || submitted}
-    className="
+                {/* SUBMIT */}
+                <Button
+                  type="submit"
+                  disabled={isSubmitting || submitted}
+                  className="
       mt-8 h-12 w-full
       rounded-lg
       text-base font-semibold
@@ -330,16 +387,14 @@ export default function CareersPage() {
       shadow-md
       hover:opacity-90
     "
-  >
-    {isSubmitting ? "Submitting..." : "Submit Application"}
-  </Button>
-</form>
-
-      </div>
-    </motion.div>
-  </div>
-</section>
-
+                >
+                  {isSubmitting ? "Submitting..." : "Submit Application"}
+                </Button>
+              </form>
+            </div>
+          </motion.div>
+        </div>
+      </section>
 
       <Footer />
       <ScrollToTop />
