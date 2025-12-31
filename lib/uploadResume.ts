@@ -1,9 +1,14 @@
+"use client";
+
 import { createBrowserSupabase } from "@/lib/supabaseClient";
+
 export async function uploadResume(file: File) {
   const ext = file.name.split(".").pop();
   const fileName = `${crypto.randomUUID()}.${ext}`;
+
+  // ✅ Browser-only Supabase client
   const supabase = createBrowserSupabase();
-  
+
   const { error } = await supabase.storage
     .from("resumes")
     .upload(fileName, file, {

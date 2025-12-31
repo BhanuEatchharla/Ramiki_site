@@ -69,7 +69,8 @@ export const Contact = () => {
   const { toast } = useToast();
   const [sent, setSent] = useState(false);
   
-  const supabase = createBrowserSupabase();
+  
+  
   const {
     register,
     handleSubmit,
@@ -81,14 +82,16 @@ export const Contact = () => {
     resolver: zodResolver(schema),
     defaultValues: { consent: false },
   });
-
- const onSubmit = async (data: {
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-}) => {
-  try {
+  
+  const onSubmit = async (data: {
+    name: string;
+    email: string;
+    subject: string;
+    message: string;
+  }) => {
+    try {
+    const supabase = createBrowserSupabase();
+    
     // 1️⃣ Store in Supabase
     const { error } = await supabase
       .from("contact_messages")

@@ -19,12 +19,18 @@
 //   return createClient(supabaseUrl, supabaseAnonKey);
 // }
 
+// lib/supabaseClient.ts
 
 import { createClient } from "@supabase/supabase-js";
 
 export function createBrowserSupabase() {
+  if (typeof window === "undefined") {
+    throw new Error("Supabase client must be used in browser only");
+  }
+
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
-} 
+}
+ 
