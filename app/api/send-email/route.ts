@@ -143,22 +143,29 @@
 // }
 
 
-
 import { Resend } from "resend";
 import { NextResponse } from "next/server";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+/* ---------------- SAFE INIT ---------------- */
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+
+if (!RESEND_API_KEY) {
+  throw new Error("RESEND_API_KEY is missing");
+}
+
+const resend = new Resend(RESEND_API_KEY);
 
 export async function POST(req: Request) {
   try {
     const data = await req.json();
 
-    const isCareerForm = !!data.position;
+    const isCareerForm = Boolean(data.position);
 
     /* ================= HR EMAIL ================= */
     await resend.emails.send({
       from: process.env.EMAIL_FROM!,
       to: process.env.EMAIL_TO!,
+      replyTo: data.email,
       subject: isCareerForm
         ? `New Career Application – ${data.position}`
         : `New Contact Message – ${data.subject}`,
@@ -173,8 +180,8 @@ export async function POST(req: Request) {
           <p><b>Message:</b> ${data.message}</p>
           ${
             data.resumeUrl
-              ? `<p><a href="${data.resumeUrl}">Download Resume</a></p>`
-              : ""
+              ? `<p><a href="${data.resumeUrl}" target="_blank">Download Resume</a></p>`
+              : `<p>No resume uploaded</p>`
           }
         `
         : `
@@ -198,20 +205,22 @@ export async function POST(req: Request) {
           <p>Hi ${data.name},</p>
           <p>
             Your application for <strong>${data.position}</strong>
-            has been received successfully.
+            has been submitted successfully.
           </p>
-          <p>Our HR team will contact you if shortlisted.</p>
-          <br/>
-          <p>Regards,<br/>Ramki Technologies</p>
+          <p>
+            Our HR team will review your profile and contact you if shortlisted.
+          </p>
+          <br />
+          <p>Regards,<br /><strong>Ramki Technologies</strong></p>
         `
         : `
           <p>Hi ${data.name},</p>
           <p>
             Thank you for contacting Ramki Technologies.
-            We have received your message and will respond shortly.
+            We’ve received your message and will respond shortly.
           </p>
-          <br/>
-          <p>Regards,<br/>Ramki Technologies</p>
+          <br />
+          <p>Regards,<br /><strong>Ramki Technologies</strong></p>
         `,
     });
 
@@ -224,3 +233,4 @@ export async function POST(req: Request) {
     );
   }
 }
+
