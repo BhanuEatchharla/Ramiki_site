@@ -143,68 +143,100 @@
 // }
 
 
-import { Resend } from "resend";
+
 import { NextResponse } from "next/server";
+import { Resend } from "resend";
 
-/* ---------------- SAFE INIT ---------------- */
+/* ---------------- ENV SAFETY ---------------- */
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const EMAIL_FROM = process.env.EMAIL_FROM;
+const EMAIL_TO = process.env.EMAIL_TO;
 
-if (!RESEND_API_KEY) {
-  throw new Error("RESEND_API_KEY is missing");
+/**
+ * IMPORTANT:
+ * Do NOT create Resend instance at top-level without key
+ * This avoids build-time crash
+ */
+function getResendClient() {
+  if (!RESEND_API_KEY) {
+    throw new Error("RESEND_API_KEY is missing");
+  }
+  return new Resend(RESEND_API_KEY);
 }
 
-const resend = new Resend(RESEND_API_KEY);
-
+/* ---------------- POST HANDLER ---------------- */
 export async function POST(req: Request) {
   try {
     const data = await req.json();
 
-    const isCareerForm = Boolean(data.position);
+    const {
+      name,
+      email,
+      subject,
+      message,
+      contact,
+      city,
+      position,
+      resumeUrl,
+    } = data;
 
-    /* ================= HR EMAIL ================= */
+    const isCareerForm = Boolean(position);
+
+    if (!EMAIL_FROM || !EMAIL_TO) {
+      throw new Error("EMAIL_FROM or EMAIL_TO is missing");
+    }
+
+    const resend = getResendClient();
+
+    /* ======================================================
+       1️⃣ HR EMAIL
+    ====================================================== */
     await resend.emails.send({
-      from: process.env.EMAIL_FROM!,
-      to: process.env.EMAIL_TO!,
-      replyTo: data.email,
+      from: EMAIL_FROM,
+      to: EMAIL_TO,
       subject: isCareerForm
-        ? `New Career Application – ${data.position}`
-        : `New Contact Message – ${data.subject}`,
+        ? `New Career Application – ${position}`
+        : `New Contact Message – ${subject || "Website Inquiry"}`,
       html: isCareerForm
         ? `
           <h2>New Career Application</h2>
-          <p><b>Name:</b> ${data.name}</p>
-          <p><b>Email:</b> ${data.email}</p>
-          <p><b>Contact:</b> ${data.contact}</p>
-          <p><b>City:</b> ${data.city}</p>
-          <p><b>Position:</b> ${data.position}</p>
-          <p><b>Message:</b> ${data.message}</p>
+          <p><strong>Name:</strong> ${name}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Contact:</strong> ${contact}</p>
+          <p><strong>City:</strong> ${city}</p>
+          <p><strong>Position:</strong> ${position}</p>
+          <p><strong>Message:</strong></p>
+          <p>${message}</p>
           ${
-            data.resumeUrl
-              ? `<p><a href="${data.resumeUrl}" target="_blank">Download Resume</a></p>`
+            resumeUrl
+              ? `<p><a href="${resumeUrl}" target="_blank">Download Resume</a></p>`
               : `<p>No resume uploaded</p>`
           }
         `
         : `
           <h2>New Contact Message</h2>
-          <p><b>Name:</b> ${data.name}</p>
-          <p><b>Email:</b> ${data.email}</p>
-          <p><b>Subject:</b> ${data.subject}</p>
-          <p><b>Message:</b> ${data.message}</p>
+          <p><strong>Name:</strong> ${name}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Subject:</strong> ${subject}</p>
+          <p><strong>Message:</strong></p>
+          <p>${message}</p>
         `,
     });
 
-    /* ================= USER CONFIRMATION ================= */
+    /* ======================================================
+       2️⃣ USER CONFIRMATION EMAIL
+    ====================================================== */
     await resend.emails.send({
-      from: process.env.EMAIL_FROM!,
-      to: data.email,
+      from: EMAIL_FROM,
+      to: email,
       subject: isCareerForm
         ? "Application Submitted – Ramki Technologies"
         : "Message Received – Ramki Technologies",
       html: isCareerForm
         ? `
-          <p>Hi ${data.name},</p>
+          <p>Hi <strong>${name}</strong>,</p>
           <p>
-            Your application for <strong>${data.position}</strong>
+            Your application for <strong>${position}</strong>
             has been submitted successfully.
           </p>
           <p>
@@ -214,10 +246,10 @@ export async function POST(req: Request) {
           <p>Regards,<br /><strong>Ramki Technologies</strong></p>
         `
         : `
-          <p>Hi ${data.name},</p>
+          <p>Hi <strong>${name}</strong>,</p>
           <p>
             Thank you for contacting Ramki Technologies.
-            We’ve received your message and will respond shortly.
+            We have received your message and will get back to you shortly.
           </p>
           <br />
           <p>Regards,<br /><strong>Ramki Technologies</strong></p>
@@ -226,9 +258,14 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Email error:", error);
+    console.error("Send email error:", error);
+
     return NextResponse.json(
-      { success: false, error: "Email failed" },
+      {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Email sending failed",
+      },
       { status: 500 }
     );
   }
