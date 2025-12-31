@@ -7,8 +7,10 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Briefcase, Send, CheckCircle, Upload } from "lucide-react";
-import { supabase } from "@/lib/supabaseClient";
+// import { supabase } from "@/lib/supabaseClient";
+import { createBrowserSupabase } from "@/lib/supabaseClient";
 import { uploadResume } from "@/lib/uploadResume";
+
 
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -51,6 +53,8 @@ export default function CareersPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const { toast } = useToast();
+
+ const supabase = createBrowserSupabase();
 
   const {
     register,

@@ -11,8 +11,7 @@ import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Checkbox } from "./ui/checkbox";
 import { useToast } from "@/hooks/use-toast"; 
-import { supabase } from "@/lib/supabaseClient";
-
+import { createBrowserSupabase } from "@/lib/supabaseClient";
 /* ================= SCHEMA ================= */
 const schema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -69,7 +68,8 @@ export const Contact = () => {
   const ref = useRef(null);
   const { toast } = useToast();
   const [sent, setSent] = useState(false);
-
+  
+  const supabase = createBrowserSupabase();
   const {
     register,
     handleSubmit,
