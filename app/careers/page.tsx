@@ -7,7 +7,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Briefcase, Send, CheckCircle, Upload } from "lucide-react";
-// import { supabase } from "@/lib/supabaseClient";
+
 import { createBrowserSupabase } from "@/lib/supabaseClient";
 import { uploadResume } from "@/lib/uploadResume";
 
@@ -54,8 +54,7 @@ export default function CareersPage() {
   const [submitted, setSubmitted] = useState(false);
   const { toast } = useToast();
 
- const supabase = createBrowserSupabase();
-
+  
   const {
     register,
     handleSubmit,
@@ -64,9 +63,11 @@ export default function CareersPage() {
   } = useForm<CareerFormData>({
     resolver: zodResolver(careerSchema),
   });
-
-const onSubmit = async (data: CareerFormData) => {
-  try {
+  
+  const onSubmit = async (data: CareerFormData) => {
+    try {
+    const supabase = createBrowserSupabase();
+    
     let resumeUrl: string | null = null;
 
     // 1️⃣ Upload resume (if exists)

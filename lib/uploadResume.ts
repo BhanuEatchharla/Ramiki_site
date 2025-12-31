@@ -1,9 +1,9 @@
 import { createBrowserSupabase } from "@/lib/supabaseClient";
-const supabase = createBrowserSupabase();
 export async function uploadResume(file: File) {
   const ext = file.name.split(".").pop();
   const fileName = `${crypto.randomUUID()}.${ext}`;
-
+  const supabase = createBrowserSupabase();
+  
   const { error } = await supabase.storage
     .from("resumes")
     .upload(fileName, file, {
