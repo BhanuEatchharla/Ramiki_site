@@ -32,7 +32,7 @@ export const Hero = () => {
       </div>
 
       {/* CONTENT */}
-      <div className="relative z-10 w-full max-w-5xl px-4 sm:px-6 flex flex-col items-center text-center gap-6">
+      <div className="relative z-10 w-full max-w-9xl px-4 sm:px-6 flex flex-col items-center text-center gap-6">
 
         {/* Badge */}
         <motion.div

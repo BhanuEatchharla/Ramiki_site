@@ -197,7 +197,7 @@ export default function CEOProfile() {
       {/* ================= ACHIEVEMENTS ================= */}
       <section className="py-16 bg-slate-100 dark:bg-slate-900">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-9xl mx-auto">
             {achievements.map((item, index) => (
               <motion.div
                 key={item.title}
