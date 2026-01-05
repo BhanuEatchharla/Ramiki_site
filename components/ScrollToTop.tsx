@@ -35,7 +35,10 @@ export const ScrollToTop = () => {
           whileHover={{ scale: 1.15 }}
           whileTap={{ scale: 0.95 }}
           className="
-            fixed bottom-6 left-1/2 -translate-x-1/2 z-50
+            fixed
+            bottom-24 md:bottom-6
+            left-1/2 -translate-x-1/2
+            z-[60]
             rounded-full p-3
             bg-gradient-to-r from-blue-600 to-teal-500
             text-white

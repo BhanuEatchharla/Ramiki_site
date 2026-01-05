@@ -1,10 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import {  useState } from "react";
+import { useState } from "react";
 import {
   Mail,
-  Award,
   Briefcase,
   GraduationCap,
   Target,
@@ -13,13 +12,13 @@ import {
   ChevronUp,
 } from "lucide-react";
 import Image from "next/image";
+
 import ramkisir from "@/public/ramkisir.jpg";
 import ceo from "@/public/ceo2.jpg";
 
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ScrollToTop } from "@/components/ScrollToTop";
-// import { useRouter } from "next/navigation";
 
 /* ---------------- ACHIEVEMENTS ---------------- */
 const achievements = [
@@ -45,6 +44,30 @@ const achievements = [
   },
 ];
 
+/* ---------------- DYNAMIC GRADIENT STYLES ---------------- */
+const achievementStyles = [
+  {
+    card:
+      "bg-gradient-to-br from-blue-400/30 to-indigo-400/30 dark:from-blue-900/40 dark:to-indigo-900/40",
+    icon: "bg-gradient-to-br from-blue-600 to-indigo-600",
+  },
+  {
+    card:
+      "bg-gradient-to-br from-emerald-400/30 to-teal-400/30 dark:from-emerald-900/40 dark:to-teal-900/40",
+    icon: "bg-gradient-to-br from-emerald-600 to-teal-600",
+  },
+  {
+    card:
+      "bg-gradient-to-br from-amber-400/30 to-orange-400/30 dark:from-amber-900/40 dark:to-orange-900/40",
+    icon: "bg-gradient-to-br from-amber-600 to-orange-600",
+  },
+  {
+    card:
+      "bg-gradient-to-br from-violet-400/30 to-purple-400/30 dark:from-violet-900/40 dark:to-purple-900/40",
+    icon: "bg-gradient-to-br from-violet-600 to-purple-600",
+  },
+];
+
 /* ---------------- BIO CONTENT ---------------- */
 const shortBio = `
 Mr. Sriramakrishna Dendukuri is the Founder of Ramki Technologies Pvt Ltd.
@@ -53,45 +76,27 @@ of global IT experience across APAC and North America.
 `;
 
 const fullBio = `
-He has worked with multinational organizations such as HP & Gateway,
-where he successfully managed significant roles in different capacities.
+He has worked with multinational organizations such as HP & Gateway.
 
 Ramki Technologies has developed and deployed multiple successful
-software products including Pragati VTS, Pragati HR, Hospital
-Management Systems, Pragati DBA, Pragati Project Management, and more,
-successfully implemented worldwide.
+software products including Pragati VTS, Pragati HR, Hospital Management Systems,
+Pragati DBA, Pragati Project Management, and more.
 
-As CEO, his vision is to build inspirational technology solutions that go
-beyond monetary value and contribute positively to humanity as a whole.
+As CEO, his vision is to build inspirational technology solutions that
+contribute positively to humanity as a whole.
 `;
 
 export default function CEOProfile() {
   const [expanded, setExpanded] = useState(false);
-  // const router = useRouter();
 
-//  useEffect(() => {
-//   // Check if CEO page was already visited in this session
-//   const hasVisited = sessionStorage.getItem("ceo-visited");
-
-//   if (hasVisited) {
-//     // This means user refreshed the page
-//     router.replace("/");
-//   } else {
-//     // First time landing via navigation → allow page
-//     sessionStorage.setItem("ceo-visited", "true");
-//   }
-// }, [router]);
   return (
-    <div className="min-h-screen py-18 bg-background">
+    <div className="min-h-screen bg-background">
       <Header />
 
       {/* ================= HERO ================= */}
-
-      <section className="relative py-20 bg-background">
+      <section className="pt-11 pb-12">
         <div className="container mx-auto px-4">
-          {/* Hero Wrapper */}
-          <div className="relative h-[70vh] min-h-[520px] overflow-hidden rounded-3xl">
-            {/* Background Image */}
+          <div className="relative h-[75vh] sm:h-[80vh] min-h-[560px] overflow-hidden rounded-3xl">
             <Image
               src={ceo}
               alt="CEO Leadership"
@@ -100,52 +105,49 @@ export default function CEOProfile() {
               className="object-cover object-center"
             />
 
-            {/* Overlay */}
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px]" />
+            <div className="absolute inset-0 bg-black/60" />
 
-            {/* Content */}
-            <div className="relative z-10 flex h-full items-center">
-              <div className="mx-auto text-center max-w-4xl px-4">
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6 }}
+            <div className="relative z-10 flex h-full items-center justify-center text-center px-4">
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="max-w-3xl"
+              >
+                <span className="text-sm uppercase tracking-wider text-slate-300">
+                  Leadership
+                </span>
+
+                <h1 className="mt-3 text-4xl sm:text-5xl md:text-6xl font-bold text-white">
+                  Sriramakrishna Dendukuri
+                </h1>
+
+                <p className="mt-3 text-base sm:text-lg text-slate-200">
+                  Chairman & Managing Director, Ramki Group
+                </p>
+
+                <a
+                  href="mailto:ramki@ramkigroup.com"
+                  className="mt-5 inline-flex items-center gap-2 text-blue-400 hover:text-blue-300"
                 >
-                  <span className="text-sm uppercase tracking-wider text-slate-300">
-                    Leadership
-                  </span>
-
-                  <h1 className="mt-4 text-4xl sm:text-5xl md:text-6xl font-bold text-white">
-                    Sriramakrishna Dendukuri
-                  </h1>
-
-                  <p className="mt-4 text-lg text-slate-200">
-                    Chairman & Managing Director, Ramki Group
-                  </p>
-
-                  <a
-                    href="mailto:ramki@ramkigroup.com"
-                    className="mt-6 inline-flex items-center gap-2 text-blue-400 hover:text-blue-300"
-                  >
-                    <Mail className="w-5 h-5" />
-                    ramki@ramkigroup.com
-                  </a>
-                </motion.div>
-              </div>
+                  <Mail className="w-5 h-5" />
+                  ramki@ramkigroup.com
+                </a>
+              </motion.div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ================= PROFILE CONTENT ================= */}
-      <section className="py-20 bg-slate-50 dark:bg-slate-950">
+      {/* ================= PROFILE ================= */}
+      <section className="py-14 bg-slate-50 dark:bg-slate-950">
         <div className="container mx-auto px-4 max-w-6xl">
-          <div className="grid lg:grid-cols-[280px_1fr] gap-10 items-start">
+          <div className="grid lg:grid-cols-[260px_1fr] gap-8 items-start">
             {/* IMAGE */}
             <div className="flex justify-center lg:justify-start">
-              <div className="rounded-2xl overflow-hidden shadow-lg bg-white">
+              <div className="rounded-2xl overflow-hidden shadow-lg bg-white dark:bg-slate-800">
                 <Image
-                  src={ramkisir} // put image in public/images
+                  src={ramkisir}
                   alt="CEO"
                   width={260}
                   height={320}
@@ -156,7 +158,7 @@ export default function CEOProfile() {
 
             {/* BIO */}
             <div>
-              <h2 className="text-2xl font-bold mb-4 text-foreground">
+              <h2 className="text-2xl font-bold mb-3 text-foreground">
                 About Mr. Ramki
               </h2>
 
@@ -166,10 +168,10 @@ export default function CEOProfile() {
 
               {expanded && (
                 <motion.p
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  transition={{ duration: 0.4 }}
-                  className="mt-4 text-muted-foreground leading-relaxed"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className="mt-3 text-muted-foreground leading-relaxed"
                 >
                   {fullBio}
                 </motion.p>
@@ -177,7 +179,12 @@ export default function CEOProfile() {
 
               <button
                 onClick={() => setExpanded(!expanded)}
-                className="mt-4 inline-flex items-center gap-2 text-primary font-medium hover:bg-red-700 bg-blue-600 rounded-md text-white"
+                className="
+                  mt-4 inline-flex items-center gap-2
+                  px-4 py-2 rounded-md
+                  bg-blue-600 hover:bg-blue-700
+                  text-sm font-medium text-white
+                "
               >
                 {expanded ? (
                   <>
@@ -195,34 +202,37 @@ export default function CEOProfile() {
       </section>
 
       {/* ================= ACHIEVEMENTS ================= */}
-      <section className="py-16 bg-slate-100 dark:bg-slate-900">
+      <section className="py-14 bg-slate-100 dark:bg-slate-900">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-9xl mx-auto">
-            {achievements.map((item, index) => (
-              <motion.div
-                key={item.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
-                className={`
-            rounded-2xl p-6 text-center shadow-sm
-            ${index === 0 && "bg-blue-200 dark:bg-blue-950/40"}
-            ${index === 1 && "bg-emerald-200 dark:bg-emerald-950/40"}
-            ${index === 2 && "bg-amber-200 dark:bg-amber-950/40"}
-            ${index === 3 && "bg-violet-200 dark:bg-violet-950/40"}
-          `}
-              >
-                <div className="w-12 h-12 mx-auto rounded-xl bg-primary/10 flex items-center justify-center mb-4">
-                  <item.icon className="w-6 h-6 text-primary" />
-                </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-5 max-w-6xl mx-auto">
+            {achievements.map((item, index) => {
+              const style =
+                achievementStyles[index % achievementStyles.length];
 
-                <h3 className="text-xl font-bold">{item.title}</h3>
+              return (
+                <motion.div
+                  key={item.title}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35, delay: index * 0.1 }}
+                  className={`rounded-2xl p-6 text-center shadow-sm ${style.card}`}
+                >
+                  <div
+                    className={`w-12 h-12 mx-auto rounded-xl ${style.icon} flex items-center justify-center mb-3`}
+                  >
+                    <item.icon className="w-6 h-6 text-white" />
+                  </div>
 
-                <p className="text-sm text-muted-foreground mt-1">
-                  {item.description}
-                </p>
-              </motion.div>
-            ))}
+                  <h3 className="text-lg font-bold">
+                    {item.title}
+                  </h3>
+
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {item.description}
+                  </p>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>

@@ -31,7 +31,7 @@ export function MobileBottomNav() {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-background border-t border-border">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t border-border">
       <div className="grid grid-cols-4 h-16">
         {/* HOME */}
         <button

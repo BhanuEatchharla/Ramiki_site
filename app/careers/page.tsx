@@ -135,10 +135,10 @@ export default function CareersPage() {
       <Header />
 
       {/* ---------- Hero ---------- */}
-      <section className="relative py-20 bg-gradient-to-b from-muted/40 to-background">
+      <section className="relative py-10 bg-gradient-to-b from-muted/40 to-background">
         <div className="container mx-auto px-4">
           {/* IMAGE WRAPPER (CENTERED, NOT FULL WIDTH) */}
-          <div className="relative mx-auto max-w-6xl h-[60vh] min-h-[420px] overflow-hidden rounded-3xl">
+          <div className="relative mx-auto max-w-7xl h-[80vh] min-h-[480px] overflow-hidden rounded-3xl">
             {/* Background Image */}
             <Image
               src={careershero} // your image import
